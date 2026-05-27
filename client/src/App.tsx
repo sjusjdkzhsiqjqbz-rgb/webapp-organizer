@@ -1,6 +1,7 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
 import Layout from './components/Layout';
 import CalendarView from './components/CalendarView';
+import EventsView from './components/EventsView';
 import DiaryView from './components/DiaryView';
 import ChatView from './components/ChatView';
 import SettingsView from './components/SettingsView';
@@ -26,6 +27,7 @@ function App() {
       <Route path="/" element={<Layout />}>
         <Route index element={<Navigate to="/calendar" replace />} />
         <Route path="calendar" element={<CalendarView />} />
+        <Route path="events" element={<EventsView />} />
         <Route path="diary" element={<DiaryView />} />
         <Route path="chat" element={<ChatView />} />
         <Route path="settings" element={<SettingsView />} />

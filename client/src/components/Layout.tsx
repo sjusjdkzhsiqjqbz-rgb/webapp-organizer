@@ -1,5 +1,5 @@
 import { NavLink, Outlet } from 'react-router-dom';
-import { Calendar, BookOpen, MessageCircle, Settings, Moon, Sun } from 'lucide-react';
+import { Calendar, BookOpen, MessageCircle, Settings, Moon, Sun, List } from 'lucide-react';
 import { useStore } from '../store/useStore';
 
 export default function Layout() {
@@ -28,6 +28,10 @@ export default function Layout() {
           <NavLink to="/calendar" className={navClass}>
             <Calendar size={20} />
             <span className="font-medium">Calendar</span>
+          </NavLink>
+          <NavLink to="/events" className={navClass}>
+            <List size={20} />
+            <span className="font-medium">Events</span>
           </NavLink>
           <NavLink to="/diary" className={navClass}>
             <BookOpen size={20} />
