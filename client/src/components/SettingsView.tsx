@@ -19,6 +19,7 @@ export default function SettingsView() {
       model: form.model,
       theme: form.theme,
       calendarView: form.calendarView,
+      timeFormat: form.timeFormat,
     });
     setSettings({ ...form });
     setSaved(true);
@@ -94,6 +95,17 @@ export default function SettingsView() {
                 <option value="dayGridMonth">Month</option>
                 <option value="timeGridWeek">Week</option>
                 <option value="timeGridDay">Day</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">Time Format</label>
+              <select
+                className="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 px-3 py-2 outline-none focus:ring-2 focus:ring-primary-500"
+                value={form.timeFormat}
+                onChange={(e) => setForm({ ...form, timeFormat: e.target.value as '24h' | '12h' })}
+              >
+                <option value="24h">24-hour (14:00)</option>
+                <option value="12h">12-hour (2:00 PM)</option>
               </select>
             </div>
           </div>

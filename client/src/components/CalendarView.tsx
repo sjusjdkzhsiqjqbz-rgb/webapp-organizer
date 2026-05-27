@@ -23,6 +23,10 @@ export default function CalendarView() {
   const [editing, setEditing] = useState<CalendarEvent | null>(null);
   const calendarRef = useRef<FullCalendar>(null);
   const { settings } = useStore();
+  const is12h = settings.timeFormat === '12h';
+  const timeFormatOpts: Record<string, string | boolean | undefined> = is12h
+    ? { hour: 'numeric', minute: '2-digit', meridiem: 'short' }
+    : { hour: '2-digit', minute: '2-digit', hour12: false };
 
   const fetchEvents = async () => {
     const res = await axios.get('/api/events');
@@ -125,6 +129,8 @@ export default function CalendarView() {
           events={events}
           select={handleDateSelect}
           eventClick={handleEventClick}
+          slotLabelFormat={timeFormatOpts}
+          eventTimeFormat={timeFormatOpts}
           height="100%"
         />
       </div>

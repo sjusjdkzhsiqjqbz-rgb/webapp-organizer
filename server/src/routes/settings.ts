@@ -15,17 +15,19 @@ router.get('/', (_req, res) => {
     model: settings.model || 'gpt-4o-mini',
     theme: settings.theme || 'system',
     calendarView: settings.calendarView || 'dayGridMonth',
+    timeFormat: settings.timeFormat || '24h',
   });
 });
 
 router.post('/', (req, res) => {
-  const { openaiUrl, openaiKey, model, theme, calendarView } = req.body;
+  const { openaiUrl, openaiKey, model, theme, calendarView, timeFormat } = req.body;
   const stmt = db.prepare('INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)');
   if (openaiUrl !== undefined) stmt.run('openaiUrl', openaiUrl);
   if (openaiKey !== undefined) stmt.run('openaiKey', openaiKey);
   if (model !== undefined) stmt.run('model', model);
   if (theme !== undefined) stmt.run('theme', theme);
   if (calendarView !== undefined) stmt.run('calendarView', calendarView);
+  if (timeFormat !== undefined) stmt.run('timeFormat', timeFormat);
   res.json({ success: true });
 });
 

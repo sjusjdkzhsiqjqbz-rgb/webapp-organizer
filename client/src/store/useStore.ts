@@ -6,6 +6,7 @@ interface Settings {
   model: string;
   theme: 'light' | 'dark' | 'system';
   calendarView: string;
+  timeFormat: '24h' | '12h';
 }
 
 interface AppState {
@@ -27,6 +28,7 @@ export const useStore = create<AppState>((set, get) => ({
     model: 'gpt-4o-mini',
     theme: 'system',
     calendarView: 'dayGridMonth',
+    timeFormat: '24h',
   },
   setTheme: (theme) => {
     set({ theme });

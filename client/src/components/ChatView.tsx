@@ -9,7 +9,7 @@ interface ChatMessage {
   toolCalls?: { name: string; success: boolean; error?: string }[];
 }
 
-function getDateContext(): string {
+function getDateContext(timeFormat: '24h' | '12h'): string {
   const now = new Date();
   const date = now.toLocaleDateString('en-US', {
     weekday: 'long',
@@ -20,14 +20,18 @@ function getDateContext(): string {
   const time = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
   const offset = -now.getTimezoneOffset() / 60;
   const tz = `UTC${offset >= 0 ? '+' : ''}${offset}`;
-  return `Current date: ${date}. Current time: ${time} (${tz}). When the user refers to "today", "tomorrow", "next Friday", "in two days", or any other relative date, calculate the corresponding ISO 8601 date from this reference point.`;
+  const formatHint = timeFormat === '12h'
+    ? 'Use 12-hour format (e.g. 2:00 PM) when displaying times to the user.'
+    : 'Use 24-hour format (e.g. 14:00) when displaying times to the user.';
+  return `Current date: ${date}. Current time: ${time} (${tz}). When the user refers to "today", "tomorrow", "next Friday", "in two days", or any other relative date, calculate the corresponding ISO 8601 date from this reference point. ${formatHint}`;
 }
 
 export default function ChatView() {
+  const timeFormat = useStore((s) => s.settings.timeFormat);
   const initialSystemContent = useMemo(() => {
-    const dateCtx = getDateContext();
+    const dateCtx = getDateContext(timeFormat);
     return `${dateCtx}\n\nYou are a personal organizer assistant. You MUST use the available tools (create_calendar_event, create_diary_entry) whenever the user asks you to create, schedule, or log anything. Do NOT describe what you would do — actually call the tools. If the user provides enough information, call the tool immediately. Only ask clarifying questions if essential information like time or title is missing. Never refuse to use a tool when the user wants to create an event or diary entry. Always respond in the same language as the user.`;
-  }, []);
+  }, [timeFormat]);
 
   const [messages, setMessages] = useState<ChatMessage[]>([
     { role: 'system', content: initialSystemContent },
