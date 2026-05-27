@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useMemo } from 'react';
 import axios from 'axios';
 import { Send, Bot, User, Loader2 } from 'lucide-react';
 import { useStore } from '../store/useStore';
@@ -9,13 +9,28 @@ interface ChatMessage {
   toolCalls?: { name: string; success: boolean; error?: string }[];
 }
 
+function getDateContext(): string {
+  const now = new Date();
+  const date = now.toLocaleDateString('en-US', {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  });
+  const time = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+  const offset = -now.getTimezoneOffset() / 60;
+  const tz = `UTC${offset >= 0 ? '+' : ''}${offset}`;
+  return `Current date: ${date}. Current time: ${time} (${tz}). When the user refers to "today", "tomorrow", "next Friday", "in two days", or any other relative date, calculate the corresponding ISO 8601 date from this reference point.`;
+}
+
 export default function ChatView() {
+  const initialSystemContent = useMemo(() => {
+    const dateCtx = getDateContext();
+    return `${dateCtx}\n\nYou are a personal organizer assistant. You MUST use the available tools (create_calendar_event, create_diary_entry) whenever the user asks you to create, schedule, or log anything. Do NOT describe what you would do — actually call the tools. If the user provides enough information, call the tool immediately. Only ask clarifying questions if essential information like time or title is missing. Never refuse to use a tool when the user wants to create an event or diary entry. Always respond in the same language as the user.`;
+  }, []);
+
   const [messages, setMessages] = useState<ChatMessage[]>([
-    {
-      role: 'system',
-      content:
-        'You are a personal organizer assistant. You MUST use the available tools (create_calendar_event, create_diary_entry) whenever the user asks you to create, schedule, or log anything. Do NOT describe what you would do — actually call the tools. If the user provides enough information, call the tool immediately. Only ask clarifying questions if essential information like time or title is missing. Never refuse to use a tool when the user wants to create an event or diary entry. Always respond in the same language as the user.',
-    },
+    { role: 'system', content: initialSystemContent },
   ]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
