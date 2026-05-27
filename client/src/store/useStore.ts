@@ -9,15 +9,18 @@ interface Settings {
 }
 
 interface AppState {
-  theme: 'light' | 'dark';
+  theme: 'light' | 'dark' | 'system';
   settings: Settings;
-  setTheme: (theme: 'light' | 'dark') => void;
-  setSettings: (settings: Partial<Settings>) => void;
+  refreshKey: number;
+  setTheme: (theme: 'light' | 'dark' | 'system') => void;
   applySystemTheme: () => void;
+  setSettings: (settings: Partial<Settings>) => void;
+  triggerRefresh: () => void;
 }
 
 export const useStore = create<AppState>((set, get) => ({
   theme: 'dark',
+  refreshKey: 0,
   settings: {
     openaiUrl: 'https://api.openai.com/v1',
     openaiKey: '',
@@ -42,4 +45,5 @@ export const useStore = create<AppState>((set, get) => ({
     else if (next.theme === 'dark') get().setTheme('dark');
     else get().applySystemTheme();
   },
+  triggerRefresh: () => set({ refreshKey: get().refreshKey + 1 }),
 }));

@@ -29,9 +29,11 @@ export default function CalendarView() {
     setEvents(res.data);
   };
 
+  const refreshKey = useStore((s) => s.refreshKey);
+
   useEffect(() => {
     fetchEvents();
-  }, []);
+  }, [refreshKey]);
 
   const handleDateSelect = (selectInfo: any) => {
     setEditing({

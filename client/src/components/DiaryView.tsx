@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
+import { useStore } from '../store/useStore';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import { Plus, Pencil, Trash2, X, Save } from 'lucide-react';
@@ -17,6 +18,7 @@ export default function DiaryView() {
   const [entries, setEntries] = useState<DiaryEntry[]>([]);
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState<Partial<DiaryEntry>>({});
+  const refreshKey = useStore((s) => s.refreshKey);
 
   const fetchEntries = async () => {
     const res = await axios.get('/api/diary');
@@ -25,7 +27,7 @@ export default function DiaryView() {
 
   useEffect(() => {
     fetchEntries();
-  }, []);
+  }, [refreshKey]);
 
   const openNew = () => {
     const today = new Date().toISOString().slice(0, 10);

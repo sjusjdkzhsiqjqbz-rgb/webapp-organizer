@@ -1,20 +1,26 @@
 import { useState, useRef, useEffect } from 'react';
 import axios from 'axios';
 import { Send, Bot, User, Loader2 } from 'lucide-react';
+import { useStore } from '../store/useStore';
 
 interface ChatMessage {
   role: 'user' | 'assistant' | 'system';
   content: string;
-  toolCalls?: { name: string; result: string }[];
+  toolCalls?: { name: string; success: boolean; error?: string }[];
 }
 
 export default function ChatView() {
   const [messages, setMessages] = useState<ChatMessage[]>([
-    { role: 'system', content: 'You are a helpful assistant for a personal organizer app. You can create calendar events and diary entries via tools when the user asks. Always respond in the same language as the user.' },
+    {
+      role: 'system',
+      content:
+        'You are a personal organizer assistant. You MUST use the available tools (create_calendar_event, create_diary_entry) whenever the user asks you to create, schedule, or log anything. Do NOT describe what you would do — actually call the tools. If the user provides enough information, call the tool immediately. Only ask clarifying questions if essential information like time or title is missing. Never refuse to use a tool when the user wants to create an event or diary entry. Always respond in the same language as the user.',
+    },
   ]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
+  const triggerRefresh = useStore((s) => s.triggerRefresh);
 
   const visibleMessages = messages.filter((m) => m.role !== 'system');
 
@@ -37,12 +43,23 @@ export default function ChatView() {
       }));
       const res = await axios.post('/api/chat', { messages: apiMessages });
       const msg = res.data.message;
+      const toolCallResults = res.data.toolCallResults || [];
       const assistantMsg: ChatMessage = { role: 'assistant', content: msg.content || '' };
-      if (msg.tool_calls) {
-        assistantMsg.toolCalls = msg.tool_calls.map((tc: any) => ({
-          name: tc.function.name,
-          result: 'Done',
+
+      if (toolCallResults.length > 0) {
+        assistantMsg.toolCalls = toolCallResults.map((tr: any) => ({
+          name: tr.name,
+          success: tr.success,
+          error: tr.error,
         }));
+        const hasCreated = toolCallResults.some(
+          (tr: any) =>
+            tr.success &&
+            (tr.name === 'create_calendar_event' || tr.name === 'create_diary_entry')
+        );
+        if (hasCreated) {
+          triggerRefresh();
+        }
       }
       setMessages([...nextMessages, assistantMsg]);
     } catch (err: any) {
@@ -84,9 +101,14 @@ export default function ChatView() {
                   {msg.toolCalls.map((tc, i) => (
                     <div
                       key={i}
-                      className="text-xs px-2 py-1 rounded bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 inline-flex items-center gap-1"
+                      className={`text-xs px-2 py-1 rounded inline-flex items-center gap-1 ${
+                        tc.success
+                          ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300'
+                          : 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300'
+                      }`}
                     >
-                      Used tool: {tc.name}
+                      {tc.success ? 'Created' : 'Failed'}: {tc.name}
+                      {tc.error && <span className="opacity-75"> — {tc.error}</span>}
                     </div>
                   ))}
                 </div>
