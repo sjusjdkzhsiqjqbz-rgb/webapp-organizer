@@ -3,6 +3,7 @@ import { create } from 'zustand';
 interface Settings {
   openaiUrl: string;
   openaiKey: string;
+  model: string;
   theme: 'light' | 'dark' | 'system';
   calendarView: string;
 }
@@ -20,6 +21,7 @@ export const useStore = create<AppState>((set, get) => ({
   settings: {
     openaiUrl: 'https://api.openai.com/v1',
     openaiKey: '',
+    model: 'gpt-4o-mini',
     theme: 'system',
     calendarView: 'dayGridMonth',
   },

@@ -12,6 +12,11 @@ function getClient() {
   return new OpenAI({ baseURL, apiKey });
 }
 
+function getModel() {
+  const row = db.prepare("SELECT value FROM settings WHERE key = 'model'").get() as any;
+  return row?.value || 'gpt-4o-mini';
+}
+
 const tools: OpenAI.Chat.ChatCompletionTool[] = [
   {
     type: 'function',
@@ -56,8 +61,9 @@ router.post('/', async (req, res) => {
     const { messages } = req.body as { messages: OpenAI.Chat.ChatCompletionMessageParam[] };
     const client = getClient();
 
+    const model = getModel();
     const completion = await client.chat.completions.create({
-      model: 'gpt-4o-mini',
+      model,
       messages,
       tools,
       tool_choice: 'auto',
@@ -97,7 +103,7 @@ router.post('/', async (req, res) => {
         }
       }
       const second = await client.chat.completions.create({
-        model: 'gpt-4o-mini',
+        model,
         messages: [
           ...messages,
           choice.message,

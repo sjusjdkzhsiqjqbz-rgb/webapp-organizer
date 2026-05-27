@@ -16,6 +16,7 @@ export default function SettingsView() {
     await axios.post('/api/settings', {
       openaiUrl: form.openaiUrl,
       openaiKey: form.openaiKey,
+      model: form.model,
       theme: form.theme,
       calendarView: form.calendarView,
     });
@@ -48,6 +49,15 @@ export default function SettingsView() {
                 value={form.openaiKey}
                 onChange={(e) => setForm({ ...form, openaiKey: e.target.value })}
                 placeholder="sk-..."
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">Model</label>
+              <input
+                className="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 px-3 py-2 outline-none focus:ring-2 focus:ring-primary-500"
+                value={form.model}
+                onChange={(e) => setForm({ ...form, model: e.target.value })}
+                placeholder="gpt-4o-mini"
               />
             </div>
           </div>
